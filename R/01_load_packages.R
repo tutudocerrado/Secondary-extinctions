@@ -7,12 +7,18 @@ ipak <- function(pkg){
   sapply(pkg, require, character.only = TRUE)
 }
 
-packages <- c("reticulate")
+packages <- c("terra", 
+              "readxl", 
+              "tidyverse", 
+              "stringr",
+              "bdc",
+              "writexl")
+
+ipak(packages); rm(packages,ipak)
 
 # packages <- c("readxl","Rocc","terra","sdmpredictors","rgdal","sf","flexsdm", 
 #               "tidyverse","ENMTML")
 
-ipak(packages); rm(packages,ipak)
 
 # Use the code bellow in case the Rocc package is not installed
 
