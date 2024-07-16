@@ -12,7 +12,8 @@ packages <- c("terra",
               "tidyverse", 
               "stringr",
               "bdc",
-              "writexl")
+              "writexl",
+              "Rocc")
 
 ipak(packages); rm(packages,ipak)
 

@@ -154,9 +154,9 @@ plant <- bdc_clean_names(data_abelha$plant)
 
 # Combining clean names
 
-data <- bind_cols(pollinator[,4], plant[,4])
+pollination_database <- bind_cols(pollinator[,4], plant[,4])
 
-colnames(data) <- colnames(data_abelha)
+colnames(pollination_database) <- colnames(data_abelha)
 
 # Removing unused objects hereafter
 
@@ -164,4 +164,4 @@ rm(plant, pollinator, data_abelha)
 
 # Exporting data
 
-write_xlsx(data, "./data/clean/pollination_database.xlsx")
+write_xlsx(pollination_database, "./data/clean/pollination_database.xlsx")
