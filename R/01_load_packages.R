@@ -13,13 +13,17 @@ packages <- c("terra",
               "stringr",
               "bdc",
               "writexl",
-              "Rocc")
+              "Rocc",
+              "flexsdm",
+              "sf",
+              "rgeos",
+              "speciesgeocodeR",
+              "rgdal",
+              "ENMTML")
 
 ipak(packages); rm(packages,ipak)
 
-# packages <- c("readxl","Rocc","terra","sdmpredictors","rgdal","sf","flexsdm", 
-#               "tidyverse","ENMTML")
-
+# Packages from GitHub ----------------------------------------------------
 
 # Use the code bellow in case the Rocc package is not installed
 
@@ -29,7 +33,21 @@ remotes::install_github("liibre/Rocc")
 
 remotes::install_github("sjevelazco/flexsdm")
 
+# Use the code bellow in case the speciesgeocodeR package is not installed
 
-remotes::install_github("envirometrix/landmap")
+remotes::install_github("azizka/speciesgeocodeR")
 
-remotes::install_github('gearslaboratory/gdalUtils')
+# Use the code bellow in case the rgdal package is not installed
+# Before run this code, install RTools in the desktop
+
+remotes::install_github("cran/rgdal")
+
+# Use the code bellow in case the rgeos package is not installed
+# Before run this code, install RTools in the desktop
+
+remotes::install_github("cran/rgeos")
+
+# Use the code bellow in case the ENMTML package is not installed
+# Before run this code, install RTools in the desktop
+
+remotes::install_github("andrefaa/ENMTML")
