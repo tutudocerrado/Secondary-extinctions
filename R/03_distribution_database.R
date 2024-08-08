@@ -255,25 +255,125 @@ ID <- na.omit(ID)
 data_plant <- data_plant[-ID,]
 rm(ID)
 
-# Records of crop occurrence up to the Neotropical realm ------------------
+# To execute the following line first need to prepare the environmental variables
 
-# Defining the coordinates of the neotropical region
+# Creating polygon of the Neotropical realm -------------------------------
 
-neotropical_bbox <- list(xmin = -120, xmax = -30, ymin = -60, ymax = 30)
+mask <- rast("./data/envi_data/clean/future/ACCESS-CM2_ssp585_2081-2100/bio01.tif")
 
-# Filtering the data for the neotropical region
+mask <- as.polygons(mask)
 
-dados_neotropical <- data_pollinator |> 
-  filter(data_pollinator$decimalLongitude >= neotropical_bbox$xmin & data_pollinator$decimalLongitude <= neotropical_bbox$xmax &
-           data_pollinator$decimalLatitude >= neotropical_bbox$ymin & data_pollinator$decimalLatitude <= neotropical_bbox$ymax)
+mask <- aggregate(mask)
+
+# Cropping occurrence records ---------------------------------------------
+
+# Cropping pollinators ----------------------------------------------------
+
+# Transforming occurrence records in sf object
+
+data_pollinator_polyg <- st_as_sf(data_pollinator,
+                                  coords = c("decimalLongitude", "decimalLatitude"), 
+                                  crs = 4326)
+
+# Cropping occurrence records using mask of Neotropical region
+
+data_pollinator_polyg <- sf::st_crop(data_pollinator_polyg, mask)
+
+# Extracting species name from the cropped sf object 
+
+names <- st_drop_geometry(data_pollinator_polyg)
+
+# Extracting longitude and latitude from the cropped sf object
+
+data_pollinator_polyg <- as.data.frame(st_coordinates(data_pollinator_polyg))
+
+# Joining columns
+
+data_pollinator2 <- bind_cols(names, data_pollinator_polyg)
+
+# Correcting column names
+
+colnames(data_pollinator2) <- colnames(data_pollinator)
+
+data_pollinator <- data_pollinator2
+
+# Removing unused objects hereafter
+
+rm(data_pollinator_polyg, data_pollinator2, names)
+
+# Cropping plants ---------------------------------------------------------
+
+# Transforming occurrence records in sf object
+
+data_plant_polyg <- st_as_sf(data_plant,
+                             coords = c("decimalLongitude", "decimalLatitude"), 
+                             crs = 4326)
+
+# Cropping occurrence records using mask of Neotropical region
+
+data_plant_polyg <- sf::st_crop(data_plant_polyg, mask)
+
+# Extracting species name from the cropped sf object 
+
+names <- st_drop_geometry(data_plant_polyg)
+
+# Extracting longitude and latitude from the cropped sf object
+
+data_plant_polyg <- as.data.frame(st_coordinates(data_plant_polyg))
+
+# Joining columns
+
+data_plant2 <- bind_cols(names, data_plant_polyg)
+
+# Correcting column names
+
+colnames(data_plant2) <- colnames(data_plant)
+
+data_plant <- data_plant2
+
+# Removing unused objects hereafter
+
+rm(data_plant_polyg, data_plant2, names)
+
+
+n_occ_pollinator <- data_pollinator |> 
+  group_by(species_search) |> 
+  summarise(length(species_search))
+
+n_occ_plant <- data_plant |> 
+  group_by(species_search) |> 
+  summarise(length(species_search))
 
 
 
 
+data_pollinator_sf <- st_as_sf(data_pollinator, 
+                               coords = c("decimalLongitude", "decimalLatitude"), 
+                               crs = 4326)
+# Defina a extensão da grade
 
+grid_extent <- st_bbox(data_pollinator_sf)
 
+# Crie uma grade de hexágonos
+grid <- st_make_grid(data_pollinator_sf, cellsize = 1, what = "polygons", square = TRUE)
+grid_sf <- st_sf(geometry = grid)
 
+# Encontre as interseções entre os pontos de dados e a grade
 
+intersections <- st_intersects(grid_sf, data_pollinator_sf)
+
+# Calcule a riqueza de espécies (número de espécies únicas) em cada célula da grade
+grid_sf$richness <- sapply(intersections, function(ids) length(unique(data_pollinator_sf$species_search[ids])))
+
+# Substituir valores de riqueza 0 por NA
+grid_sf$richness <- ifelse(grid_sf$richness == 0, NA, grid_sf$richness)
+
+ggplot() +
+  geom_sf(data = grid_sf, aes(fill = richness), color = NA) +
+  scale_fill_viridis_c(na.value = "white") +
+  coord_sf() +
+  theme_minimal() +
+  labs(title = "Mapa de Riqueza de Espécies", fill = "Riqueza")
 
 
 
