@@ -297,6 +297,9 @@ colnames(data_pollinator2) <- colnames(data_pollinator)
 
 data_pollinator <- data_pollinator2
 
+data_pollinator <- data_pollinator |> 
+  mutate(species_search = gsub(" ", "_", species_search))
+
 # Removing unused objects hereafter
 
 rm(data_pollinator_polyg, data_pollinator2, names)
@@ -331,52 +334,108 @@ colnames(data_plant2) <- colnames(data_plant)
 
 data_plant <- data_plant2
 
+data_plant <- data_plant |> 
+  mutate(species_search = gsub(" ", "_", species_search))
+
 # Removing unused objects hereafter
 
 rm(data_plant_polyg, data_plant2, names)
 
+# Unique occurrence count by species
 
 n_occ_pollinator <- data_pollinator |> 
   group_by(species_search) |> 
-  summarise(length(species_search))
+  summarise(n = length(species_search))
 
 n_occ_plant <- data_plant |> 
   group_by(species_search) |> 
-  summarise(length(species_search))
+  summarise(n = length(species_search))
 
+# Organizing occurrence data set in two groups ----------------------------
 
+# Pollinators: >= 5 and < 20
 
+filter_species_pollinator5 <- n_occ_pollinator |> 
+  filter(n >= 5 & n < 20)
 
-data_pollinator_sf <- st_as_sf(data_pollinator, 
-                               coords = c("decimalLongitude", "decimalLatitude"), 
-                               crs = 4326)
-# Defina a extensão da grade
+filter_species_pollinator20 <- n_occ_pollinator |> 
+  filter(n > 20)
 
-grid_extent <- st_bbox(data_pollinator_sf)
+# Filtering original data of pollinators
 
-# Crie uma grade de hexágonos
-grid <- st_make_grid(data_pollinator_sf, cellsize = 1, what = "polygons", square = TRUE)
-grid_sf <- st_sf(geometry = grid)
+data_pollinators5 <- data_pollinator |> 
+  filter(species_search %in% filter_species_pollinator5$species_search)
+  
+data_pollinators20 <- data_pollinator |> 
+  filter(species_search %in% filter_species_pollinator20$species_search)
+  
+# Plants: >= 5 and < 20
 
-# Encontre as interseções entre os pontos de dados e a grade
+filter_species_plant5 <- n_occ_plant |> 
+  filter(n >= 5 & n < 20)
 
-intersections <- st_intersects(grid_sf, data_pollinator_sf)
+filter_species_plant20 <- n_occ_plant |> 
+  filter(n > 20)
 
-# Calcule a riqueza de espécies (número de espécies únicas) em cada célula da grade
-grid_sf$richness <- sapply(intersections, function(ids) length(unique(data_pollinator_sf$species_search[ids])))
+# Filtering original data of plants
 
-# Substituir valores de riqueza 0 por NA
-grid_sf$richness <- ifelse(grid_sf$richness == 0, NA, grid_sf$richness)
+data_plants5 <- data_plant |> 
+  filter(species_search %in% filter_species_plant5$species_search)
 
-ggplot() +
-  geom_sf(data = grid_sf, aes(fill = richness), color = NA) +
-  scale_fill_viridis_c(na.value = "white") +
-  coord_sf() +
-  theme_minimal() +
-  labs(title = "Mapa de Riqueza de Espécies", fill = "Riqueza")
+data_plants20 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20$species_search)
 
+# Saving new occurrence data sets: pollinators
 
+write.table(x = data_pollinators5, 
+            file = "./data/clean/data_pollinators5.txt", 
+            row.names = FALSE)
 
+write.table(x = data_pollinators20, 
+            file = "./data/clean/data_pollinators20.txt", 
+            row.names = FALSE)
+
+# Saving new occurrence data sets: plants
+
+write.table(x = data_plants5, 
+            file = "./data/clean/data_plants5.txt", 
+            row.names = FALSE)
+
+write.table(x = data_pollinators20, 
+            file = "./data/clean/data_plants20.txt", 
+            row.names = FALSE)
+
+# After run the niche model using the checkerboard method for pollinators
+# some species required a new modeling using boot method
+
+# Species list
+
+pollinator_sp <- c("Augochlora_semiramis","Augochloropsis_cleopatra","Callonychium_petuniae",
+                   "Centris_burgdorfi","Ceratina_maculifrons","Coelioxoides_waltheriae",
+                   "Compsomyiops_fulvicrura","Dialictus_opacus","Epanthidium_autumnale",
+                   "Eufriesea_mussitans","Euglossa_melanotricha","Lanthanomelissa_betinae",
+                   "Lanthanomelissa_clementis","Megachile_aetheria","Megachile_apicipennis",
+                   "Megachile_brasiliensis","Megachile_fiebrigi","Megachile_lentifera",
+                   "Megachile_orbiculata","Mesonychium_asteria","Mesonychium_jenseni",
+                   "Paratetrapedia_fervida","Paratetrapedia_lineata","Paratrigona_glabrata",
+                   "Parepeolus_aterrimus","Paroxystoglossa_andromache","Trichothurgus_laticeps",
+                   "Protomeliturga_turnerae","Psaenythia_bergii","Pseudagapostemon_arenarius",
+                   "Pseudagapostemon_pruinosus")
+
+# Transforming in a data frame
+
+pollinator_sp <- data.frame(species = pollinator_sp)
+
+# Selecting coordinates in the main distribution database
+
+data_pollinator5.1 <- data_pollinator |> 
+  filter(species_search %in% pollinator_sp$species)
+
+# Saving data
+
+write.table(x = data_pollinator5.1, 
+            file = "./data/clean/data_pollinators51.txt", 
+            row.names = FALSE)
 
 
 
