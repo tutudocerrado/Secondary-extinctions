@@ -1,3 +1,8 @@
+# Creating folders in the directory ---------------------------------------
+
+dir.create("data")
+dir.create("data/raw")
+dir.create("data/clean")
 
 # Load interaction data from A.B.E.L.H.A database -------------------------
 
