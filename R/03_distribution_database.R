@@ -190,10 +190,6 @@ splink_data_pollinator$decimalLatitude <- as.numeric(splink_data_pollinator$deci
 
 data_pollinator <- bind_rows(gbif_data_pollinator, splink_data_pollinator)
 
-# Removing unused objects hereafter
-
-rm(gbif_data_pollinator, splink_data_pollinator)
-
 # Changing class of the coordinates (Plants)
 
 splink_data_plants$decimalLongitude <- as.numeric(splink_data_plants$decimalLongitude)
@@ -358,6 +354,8 @@ n_occ_plant <- data_plant |>
 filter_species_pollinator5 <- n_occ_pollinator |> 
   filter(n >= 5 & n < 20)
 
+# Pollinators: > 20
+
 filter_species_pollinator20 <- n_occ_pollinator |> 
   filter(n > 20)
 
@@ -368,22 +366,6 @@ data_pollinators5 <- data_pollinator |>
   
 data_pollinators20 <- data_pollinator |> 
   filter(species_search %in% filter_species_pollinator20$species_search)
-  
-# Plants: >= 5 and < 20
-
-filter_species_plant5 <- n_occ_plant |> 
-  filter(n >= 5 & n < 20)
-
-filter_species_plant20 <- n_occ_plant |> 
-  filter(n > 20)
-
-# Filtering original data of plants
-
-data_plants5 <- data_plant |> 
-  filter(species_search %in% filter_species_plant5$species_search)
-
-data_plants20 <- data_plant |> 
-  filter(species_search %in% filter_species_plant20$species_search)
 
 # Saving new occurrence data sets: pollinators
 
@@ -393,16 +375,6 @@ write.table(x = data_pollinators5,
 
 write.table(x = data_pollinators20, 
             file = "./data/clean/data_pollinators20.txt", 
-            row.names = FALSE)
-
-# Saving new occurrence data sets: plants
-
-write.table(x = data_plants5, 
-            file = "./data/clean/data_plants5.txt", 
-            row.names = FALSE)
-
-write.table(x = data_pollinators20, 
-            file = "./data/clean/data_plants20.txt", 
             row.names = FALSE)
 
 # After run the niche model using the checkerboard method for pollinators
@@ -437,14 +409,201 @@ write.table(x = data_pollinator5.1,
             file = "./data/clean/data_pollinators51.txt", 
             row.names = FALSE)
 
+# Reducing the number of species to be modeled 200 records ----------------
 
+# Plants: > 20
 
+filter_species_plant20 <- n_occ_plant |> 
+  filter(n > 20)
 
+# > 20 records
 
+# 1:200
 
+filter_species_plant20.1 <- filter_species_plant20[c(1:200),]
 
+data_plants20.1 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.1$species_search)
 
+# 201:400
 
+filter_species_plant20.2 <- filter_species_plant20[c(201:400),]
 
+data_plants20.2 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.2$species_search)
 
+# 401:600
 
+filter_species_plant20.3 <- filter_species_plant20[c(401:600),]
+
+data_plants20.3 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.3$species_search)
+
+# 601:800
+
+filter_species_plant20.4 <- filter_species_plant20[c(601:800),]
+
+data_plants20.4 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.4$species_search)
+
+# 801:1000
+
+filter_species_plant20.5 <- filter_species_plant20[c(801:1000),]
+
+data_plants20.5 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.5$species_search)
+
+# 1001:1200
+
+filter_species_plant20.6 <- filter_species_plant20[c(1001:1200),]
+
+data_plants20.6 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.6$species_search)
+
+# 1201:1400
+
+filter_species_plant20.7 <- filter_species_plant20[c(1201:1400),]
+
+data_plants20.7 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.7$species_search)
+
+# 1401:1600
+
+filter_species_plant20.8 <- filter_species_plant20[c(1401:1600),]
+
+data_plants20.8 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.8$species_search)
+
+# 1601:1800
+
+filter_species_plant20.9 <- filter_species_plant20[c(1601:1800),]
+
+data_plants20.9 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.9$species_search)
+
+# 1801:1996
+
+filter_species_plant20.10 <- filter_species_plant20[c(1801:1996),]
+
+data_plants20.10 <- data_plant |> 
+  filter(species_search %in% filter_species_plant20.10$species_search)
+
+# Plants: >= 5 and <= 20
+
+filter_species_plant5 <- n_occ_plant |>
+  filter(n >= 5 & n <= 20)
+
+# Filtering original data of plants
+
+data_plants5 <- data_plant |> 
+  filter(species_search %in% filter_species_plant5$species_search)
+
+# After run the niche model using the checkerboard method for plants
+# some species required a new modeling using boot method
+
+# Species list
+
+plants_sp <- c("Abutilon_malachroides","Acacia_mearnsii","Acacia_plumosa",
+               "Aleurites_fordii","Amaranthus_retroflexus","Archontophoenix_cunninghamia",
+               "Archontophoenix_cunninghamiana","Baccharis_axilaris","Baccharis_concinna",
+               "Baccharis_pseudovillosa","Banisteriopsis_cipoensis","Begonia_semperflorens",
+               "Aptandra_liriosmoides","Baccharis_conyzoides","Barbacenia_flava",
+               "Begonia_solananthera","Bernardia_crassifolia","Bombax_ceiba",
+               "Brassica_campestris","Brassica_napus","Bredemeyera_microphylla",
+               "Bulbine_frutescens","Caesalpinia_bonducella","Callistemon_citrinus",
+               "Callistemon_lanceolatus","Camellia_japonica","Castanea_sativa",
+               "Bidens_tinctoria","Calceolaria_crenatiflora","Cambessedesia_corymbosa",
+               "Chamaechrista_ochnacea","Chamaechrista_vestita","Chrysanthemum_frutescens",
+               "Chrysanthemum_myconis","Commelina_virginica","Cordia_lanata",
+               "Coreopsis_grandiflora","Crinum_powellii","Croton_ericoides","Croton_priscus",
+               "Cunila_microcephala","Diospyros_kaki","Dioclea_rufescens","Dipyrena_glaberrima",
+               "Cuphea_pseudovaccinium","Diplusodon_orbicularis","Dyckia_maritima",
+               "Eclipta_megapotamica","Eryngium_ciliatum","Eucalyptus_tereticornis",
+               "Gardenia_jasminoides","Gazania_rigens","Geranium_robertianum",
+               "Grazielia_gaudichaudiana","Grevillea_banskii","Hemerocallis_fulva",
+               "Hiraea_cuneata","Hyptis_heterodon","Hyptis_lagenaria","Jacquemontia_grandiflora",
+               "Jasminum_azoricum","Jasminum_nudiflorum","Jatropha_urens","Leucaena_glauca",
+               "Lafoensia_nummularifolia","Inga_lenticellata","Ipomoea_nitida",
+               "Jungia_sellowii","Kelissa_brasiliensis","Lavoisiera_cordata","Lilium_longiflorum",
+               "Lippia_hirta","Lychnophora_rupestris","Mikania_conferta","Mikania_diversifolia",
+               "Mikania_ulei","Mimosa_conyflora","Mimosa_per-dusenii","Mora_paraensis",
+               "Myrcia_rotundifolia","Nothoscordum_inodorum","Oxalis_subvillosa",
+               "Pamphalea_heterophylla","Paulownia_tomentosa","Peltodon_rugosus",
+               "Petunia_hybrida","Luxemburgia_schwackeana","Menodora_decemfida",
+               "Miconia_regnellii","Mimosa_maguirei","Oxalis_sellowiana","Paullinia_seminuda",
+               "Pavonia_friesii","Petunia_ericifolia","Polygonum_capitatum",
+               "Pontederia_lanceolata","Prumus_persica","Pyracantha_coccinea",
+               "Quisqualis_indica","Schefflera_arboricola","Pterolepis_alpestris",
+               "Rhabdocaulon_gracilis","Richterago_polyphylla","Senna_rostrata",
+               "Sida_carpinifolia","Solanum_inaequale","Solanum_martii","Sorocea_ilicifolia",
+               "Spondias_lutea","Stevia_cinerascens","Stilpnopappus_pantanalensis",
+               "Struthanthus_confertus","Taraxacum_offcinale","Solanum_subsylvestris", 
+               "Stachytarpheta_cayannensis","Tetrapanax_papyrifera","Tibouchina_regnellii",
+               "Verbena_hybrida","Vernonia_tragiaefolia","Veronica_polita","Viguiera_trichophylla",
+               "Wedelia_paludosa","Zanthedeschia_aetiopica","Tibouchina_chamissoana",
+               "Tibouchina_debilis","Trembleya_laniflora","Vellozia_compacta","Verbenoxylum_reitzii",
+               "Vernonia_hypochlora","Vochysia_pygmaea","Wahlenbergia_brasiliensis",
+               "Weinmannia_discolor","Yucca_filamentosa")
+
+# Transforming in a data frame
+
+plants_sp <- data.frame(species = plants_sp)
+
+# Selecting coordinates in the main distribution database
+
+data_plants5.1 <- data_plant |> 
+  filter(species_search %in% plants_sp$species)
+
+data_plants5 <- bind_rows(data_plants5, data_plants5.1)
+
+# Saving new occurrence data sets: plants
+
+write.table(x = data_plants5, 
+            file = "./data/clean/data_plants5.txt", 
+            row.names = FALSE)
+
+# > 20 occurrences
+
+write.table(x = data_plants20.1, 
+            file = "./data/clean/data_plants20_1.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.2, 
+            file = "./data/clean/data_plants20_2.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.3, 
+            file = "./data/clean/data_plants20_3.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.4, 
+            file = "./data/clean/data_plants20_4.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.5, 
+            file = "./data/clean/data_plants20_5.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.6, 
+            file = "./data/clean/data_plants20_6.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.7, 
+            file = "./data/clean/data_plants20_7.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.8, 
+            file = "./data/clean/data_plants20_8.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.9, 
+            file = "./data/clean/data_plants20_9.txt", 
+            row.names = FALSE)
+write.table(x = data_plants20.10, 
+            file = "./data/clean/data_plants20_10.txt", 
+            row.names = FALSE)
+
+rm(pollinator, no_coordinates_plantGBIF, no_coordinates_pollinatorGBIF, 
+   gbif_data_pollinator, plants, pollinator_splink, plants_splink, pollinator, 
+   splink_data_pollinator, data_pollinator, data_plant, n_occ_plant, 
+   n_occ_pollinator, filter_species_plant20, filter_species_plant20.1, 
+   filter_species_plant20.10, filter_species_plant20.2, filter_species_plant20.3, 
+   filter_species_plant20.4, filter_species_plant20.5, filter_species_plant20.6, 
+   filter_species_plant20.7, filter_species_plant20.8, filter_species_plant20.9,
+   filter_species_pollinator20, filter_species_pollinator5, data_pollinator5.1, 
+   data_pollinators20, data_pollinators5, pollinator_sp, plants_sp, data_plant5.1, 
+   data_plants20, data_plants20.1, data_plants20.10, data_plants20.2, data_plants20.3, 
+   data_plants20.4, data_plants20.5, data_plants20.6, data_plants20.7, data_plants20.8, 
+   data_plants20.9, data_plants5, data_plants5.1, filter_species_plant5)
