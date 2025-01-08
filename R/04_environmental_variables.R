@@ -8,6 +8,7 @@ dir.create("data/envi_data/raw/future")
 dir.create("data/envi_data/clean/future")
 dir.create("data/envi_data/clean/pca_climate_future")
 dir.create("data/envi_data/clean/pca_climate_current")
+dir.create("data/envi_data/clean/pca_climate_soil_future")
 
 # Pollinator environmental data -------------------------------------------
 
@@ -27,7 +28,7 @@ for (i in 1:length(files)) {
 
 # Establishing Neotropical bounding box  ----------------------------------
 
-neotropical_bbox <- ext(-120, -30, -56, 30)
+neotropical_bbox <- c(-120, -30, -56, 30)
 
 # Cropping Neotropical realm with total extent of South America
 
@@ -36,6 +37,8 @@ for (i in 1:length(raw_future)) {
 }; rm(i)
 
 # Creating folders in the directory for each future projection
+
+GCM_dir <- as.numeric()
 
 GCM_names <- c("ACCESS-CM2_ssp585_2081-2100",
                "CMCC-ESM2_ssp585_2081-2100",
@@ -91,7 +94,7 @@ for (i in 1:length(raw_future)) {
 
 # Removing unused objects hereafter
 
-rm(raw_future, files, GCM_dir, GCM_names, i, j, n_layers, output_dir, 
+rm(raw_future, files, i, j, n_layers, output_dir, 
    output_path, path, var_names)
 
 # Current climate data ----------------------------------------------------
@@ -190,27 +193,139 @@ for (i in 1:length(PCA_climate_future)) {
 
 # After run the code above, delete files "pcs" from the folder
 
+# Removing unused objects hereafter
+
+rm(filesPCA, i,j,var_names)
+
+# Climate and edaphic data ------------------------------------------------
+
+# Current climate data
+
+raster_files <- list.files("./data/envi_data/raw/current/", 
+                           pattern = "\\.tif$", 
+                           full.names = TRUE)
+
+raster_files <- lapply(raster_files, rast)
+
+for (i in 1:length(raster_files)) {
+  raster_files[[i]] <- terra::crop(raster_files[[i]], neotropical_bbox)
+}
+
+var_names <- c("bio01.tif",
+               "bio02.tif",
+               "bio03.tif",
+               "bio04.tif",
+               "bio05.tif",
+               "bio06.tif",
+               "bio07.tif",
+               "bio08.tif",
+               "bio09.tif",
+               "bio10.tif",
+               "bio11.tif",
+               "bio12.tif",
+               "bio13.tif",
+               "bio14.tif",
+               "bio15.tif",
+               "bio16.tif",
+               "bio17.tif",
+               "bio18.tif",
+               "bio19.tif")
+
+for (i in 1:length(raster_files)) {
+  writeRaster(raster_files[[i]], 
+              filename = paste("./data/envi_data/clean/current_soil", 
+                               var_names[i],
+                               sep = "/"))
+}
 
 
+# Soil data
+
+raster_soil_files <- list.files("./data/envi_data/raw/soil/", 
+                           pattern = "\\.tif$", 
+                           full.names = TRUE)
+
+raster_soil_files <- lapply(raster_soil_files, rast)
+
+# Resample of edaphic data
+
+for (i in 1:length(raster_soil_files)) {
+  raster_soil_files[[i]] <- resample(raster_soil_files[[i]], raster_files[[1]])
+}
 
 
+Current_soil_climate <- c(raster_files[[1]],
+                          raster_files[[2]],
+                          raster_files[[3]],
+                          raster_files[[4]],
+                          raster_files[[5]],
+                          raster_files[[6]],
+                          raster_files[[7]],
+                          raster_files[[8]],
+                          raster_files[[9]],
+                          raster_files[[10]],
+                          raster_files[[11]],
+                          raster_files[[12]],
+                          raster_files[[13]],
+                          raster_files[[14]],
+                          raster_files[[15]],
+                          raster_files[[16]],
+                          raster_files[[17]],
+                          raster_files[[18]],
+                          raster_files[[19]],
+                          raster_soil_files[[1]],
+                          raster_soil_files[[2]],
+                          raster_soil_files[[3]],
+                          raster_soil_files[[4]],
+                          raster_soil_files[[5]],
+                          raster_soil_files[[6]],
+                          raster_soil_files[[7]],
+                          raster_soil_files[[8]],
+                          raster_soil_files[[9]],
+                          raster_soil_files[[10]],
+                          raster_soil_files[[11]])
+
+# Exporting edaphic data into the future climate folders ------------------
+
+var_names <- c("cbdod",
+               "cec",
+               "cfvo",
+               "clay",
+               "nitrogen",
+               "ocd",
+               "ocs",
+               "phh2o",
+               "sand",
+               "silt",
+               "soc")
+
+for (i in 1:length(GCM_dir)) {
+  output_dir <- GCM_dir[i]
+  for (j in 1:length(raster_soil_files)) {
+    path <- paste(output_dir, var_names[j],sep = "/")
+    writeRaster(raster_soil_files[[j]], 
+                filename = paste(path,".tif",sep = ""), overwrite = TRUE)
+  }
+}
+
+# Climate and edaphic PCA -------------------------------------------------
+
+names(Current_soil_climate) <- c("bio01","bio02","bio03","bio04","bio05",
+                                 "bio06","bio07","bio08","bio09","bio10",
+                                 "bio11","bio12","bio13","bio14","bio15",
+                                 "bio16", "bio17","bio18","bio19", "cbdod",
+                                 "cec","cfvo","clay","nitrogen","ocd",
+                                 "ocs","phh2o","sand","silt","soc")
+
+climate_soil_pca <- correct_colinvar(env_layer = Current_soil_climate,
+                                     method = c('pca'),
+                                     proj = "./data/envi_data/clean/future",
+                                     save_proj = "./data/envi_data/clean/pca_climate_soil_future")
 
 
+writeRaster(Current_soil_climate, 
+            filename = "./data/envi_data/clean/current_soil")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+rm(Current_soil_climate, climate_pca, output_dir, path, raster_files, raster_soil_files,
+   PCA_climate_future, filesPCA, GCM_dir, GCM_names, var_names)
 
