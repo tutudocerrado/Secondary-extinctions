@@ -19,7 +19,13 @@ packages <- c("terra",
               "rgeos",
               "speciesgeocodeR",
               "rgdal",
-              "ENMTML")
+              "ENMTML",
+              "plyr",
+              "dplyr",
+              "ggplot2",
+              "ggmap",
+              "cowplot",
+              "gridExtra")
 
 ipak(packages); rm(packages,ipak)
 
