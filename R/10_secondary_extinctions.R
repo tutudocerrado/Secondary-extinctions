@@ -57,7 +57,7 @@ for (i in 1:length(pollinator_files)) {
   # Stacking rasters of the interactions
 
   for (k in 1:length(interactions)) {
-    interaction_pairs <- rast(paste("./ENM/Plants/Projection/Sorensen", 
+    interaction_pairs <- rast(paste("./ENM/Plants/Future", 
                                     paste(interactions[k],
                                           ".tif", 
                                           sep = ""), 
@@ -130,7 +130,7 @@ for (i in 1:length(plant_files)) {
   # Stacking rasters of the interactions 
   
   for (k in 1:length(interactions)) {
-    interaction_pairs <- rast(paste("./ENM/Pollinators/Projection/Sorensen", 
+    interaction_pairs <- rast(paste("./ENM/Pollinators/Future", 
                                     paste(interactions[k],
                                           ".tif", 
                                           sep = ""), 
@@ -145,15 +145,6 @@ for (i in 1:length(plant_files)) {
   # Performing richness of interactions and correcting their extent
   
   interaction_stack <- app(interaction_stack, fun = sum)
-  interaction_stack <- terra::extract(interaction_stack, 
-                                      plant_mask, 
-                                      xy = TRUE)[,-1]
-  interaction_stack <- vect(interaction_stack, 
-                            geom = c("x", "y"), 
-                            crs = "EPSG:4326")
-  interaction_stack <- terra::rasterize(interaction_stack, 
-                                        empty_raster, 
-                                        field = "sum")
   
   writeRaster(interaction_stack, 
               paste("./Secondary_extinction/Plants/Interaction_richness", 
@@ -300,9 +291,9 @@ secondary_extinction_groups <- grid.arrange(secondary_extinc_plant_map,
                                             secondary_extinc_pollinator_map, ncol = 2)
 
 ggsave(plot = secondary_extinction_groups, 
-       filename = "./Results/secondary_extinction_groups.png",
+       filename = "./Results/secondary_extinction_groups.tif",
        dpi = 300,
-       width = 7,
+       width = 7.2,
        height = 4.5)
 
 rm(p_extinction, p_extinction_plants, p_extinction_pollinators, p_extinction_stack,
