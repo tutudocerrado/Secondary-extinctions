@@ -15,6 +15,8 @@ dir.create("ENM/Plants/Ensemble/Sorensen")
 
 # Future ensemble: pollinators --------------------------------------------
 
+# Counting subfolders
+
 rounds <- list.files("./ENM_pollinators")
 
 folders <- list.files(paste("./ENM_pollinators", 
@@ -36,11 +38,13 @@ for (i in 1:length(rounds)) {
                               sep = "/")
   }
   paths[[i]] <- rounds_list
-}
+}; rm(rounds_list, i, j)
 
 paths_ensemble <- list()
 group_list <- list()
 save_list <- list()
+
+# Creating paths to perform the ensemble by the average -------------------
 
 for (i in 1:length(rounds)) {
   for (j in 1:length(folders)) {
@@ -59,9 +63,13 @@ for (i in 1:length(rounds)) {
   group_list <- list()
 }
 
-rm(i,j,k)
+# Removing unused objects
+
+rm(i,j,k, group_list)
 
 # Reading threshold files -------------------------------------------------
+
+# Pollinators
 
 thresholds <- list()
 
@@ -73,16 +81,41 @@ for (i in 1:length(rounds)) {
                                sheet = 1)
 }
 
+# Reading evaluation table ------------------------------------------------
+
+# Pollinators
+
+evaluation <- list()
+
+for (i in 1:length(rounds)) {
+  evaluation[[i]] <- read_xlsx(paste("./ENM_pollinators",
+                                     rounds[i], 
+                                     "Evaluation_Table.xlsx", 
+                                     sep = "/"),
+                               sheet = 1)
+}
+
 # Performing ensemble -----------------------------------------------------
 
 SA_bbox <- c(-82, -34, -56, 12.5)
 GCMs <- list()
 
-for (i in 2:length(rounds)) {
+for (i in 1:length(rounds)) {
   for (j in 1:length(paths_ensemble[[i]][[1]])) {
       for (k in 1:length(folders)) {
-        GCMs[[k]] <- rast(paths_ensemble[[i]][[k]][[j]])
+        sp_name <- gsub("\\.tif", "", basename(paths_ensemble[[i]][[k]][[j]]))
+        filtered_data <- subset(evaluation[[i]], Sp == sp_name & Algorithm == "SUP")
+        
+        # Validating models
+        
+        if (!filtered_data$AUC >= 0.7 & filtered_data$TSS >= 0.5) {
+          next
+        } else {
+          GCMs[[k]] <- rast(paths_ensemble[[i]][[k]][[j]])
+        }
+        
       }
+    if (exists("GCMs") && length(GCMs) >= 5) {
     stackGCM <- c(GCMs[[1]], GCMs[[2]], GCMs[[3]], GCMs[[4]], GCMs[[5]])
     meanGCM <- terra::app(stackGCM, fun = mean)
     cropGCM <- crop(meanGCM, SA_bbox)
@@ -104,10 +137,16 @@ for (i in 2:length(rounds)) {
                       species_basename, 
                       sep = "/"), 
                 overwrite = TRUE)
+    GCMs <- list()
+    print(j)
+    }
   }
+  print(i); print(j)
 }
 
 # Future ensemble: plants -------------------------------------------------
+
+# Counting subfolders
 
 rounds <- list.files("./ENM_plants")
 
@@ -132,6 +171,8 @@ for (i in 1:length(rounds)) {
   paths[[i]] <- rounds_list
 }
 
+# Creating paths to perform the ensemble by the average -------------------
+
 paths_ensemble <- list()
 group_list <- list()
 save_list <- list()
@@ -157,14 +198,28 @@ rm(i,j,k)
 
 # Reading threshold files -------------------------------------------------
 
-thresholds <- list()
+thresholds2 <- list()
 
 for (i in 1:length(rounds)) {
-  thresholds[[i]] <- read_xlsx(paste("./ENM_plants",
-                                     rounds[i], 
-                                     "Thresholds_Ensemble.xlsx", 
-                                     sep = "/"),
-                               sheet = 1)
+  thresholds2[[i]] <- read_xlsx(paste("./ENM_plants",
+                                      rounds[i], 
+                                      "Thresholds_Ensemble.xlsx", 
+                                      sep = "/"),
+                                sheet = 1)
+}
+
+# Reading evaluation table ------------------------------------------------
+
+# Pollinators
+
+evaluation2 <- list()
+
+for (i in 1:length(rounds)) {
+  evaluation2[[i]] <- read_xlsx(paste("./ENM_plants",
+                                      rounds[i], 
+                                      "Evaluation_Table.xlsx", 
+                                      sep = "/"),
+                                sheet = 1)
 }
 
 # Performing ensemble -----------------------------------------------------
@@ -175,8 +230,19 @@ GCMs <- list()
 for (i in 1:length(rounds)) {
   for (j in 1:length(paths_ensemble[[i]][[1]])) {
     for (k in 1:length(folders)) {
-      GCMs[[k]] <- rast(paths_ensemble[[i]][[k]][[j]])
+      sp_name <- gsub("\\.tif", "", basename(paths_ensemble[[i]][[k]][[j]]))
+      filtered_data <- subset(evaluation2[[i]], Sp == sp_name & Algorithm == "SUP")
+      
+      # Validating models
+      
+      if (!filtered_data$AUC >= 0.7 & filtered_data$TSS >= 0.5) {
+        next
+      } else {
+        GCMs[[k]] <- rast(paths_ensemble[[i]][[k]][[j]])
+      }
+      
     }
+    if (exists("GCMs") && length(GCMs) >= 5) {
     stackGCM <- c(GCMs[[1]], GCMs[[2]], GCMs[[3]], GCMs[[4]], GCMs[[5]])
     meanGCM <- terra::app(stackGCM, fun = mean)
     cropGCM <- crop(meanGCM, SA_bbox)
@@ -187,7 +253,7 @@ for (i in 1:length(rounds)) {
                       sep = "/"), 
                 overwrite = TRUE)
     species_name <- gsub("\\.tif$", "", species_basename)
-    threshold_file <- as.data.frame(thresholds[i])
+    threshold_file <- as.data.frame(thresholds2[i])
     threshold <- threshold_file |> 
       filter(Sp == species_name & THR == "SORENSEN") |> 
       pull(THR_VALUE)
@@ -198,8 +264,14 @@ for (i in 1:length(rounds)) {
                       species_basename, 
                       sep = "/"), 
                 overwrite = TRUE)
+    GCMs <- list()
+    print(j)
+    }
   }
+  print(i); print(j)
 }
+
+# Removing unused objects 
 
 rm(files, folders, i, j, k, neotropical_bbox, rounds, SA_bbox, species_basename, 
    species_name, threshold, threshold_file, thresholds, stackGCM, save_list, rounds_list,
@@ -219,6 +291,7 @@ for (i in 1:length(rounds)) {
                             sep = "/")
 }
 
+files2 <- list.files("./ENM/pollinators/Projection", pattern = ".tif")
 
 path_models <- list()
 
@@ -235,18 +308,23 @@ SA_bbox <- c(-82, -34, -56, 12.5)
 
 for (i in 1:length(rounds)) {
   for (j in 1:length(path_models[[i]])) {
-    model <- rast(path_models[[i]][[j]])
-    crop_model <- crop(model, SA_bbox)
-    species_basename <- basename(path_models[[i]][[j]])
-    writeRaster(crop_model, 
-                paste("ENM/Pollinators/Ensemble", 
-                      species_basename, 
-                      sep = "/"), 
-                overwrite = TRUE)
+    if (basename(path_models[[i]][[j]]) %in% files2) {
+      model <- rast(path_models[[i]][[j]])
+      crop_model <- crop(model, SA_bbox)
+      species_basename <- basename(path_models[[i]][[j]])
+      writeRaster(crop_model, 
+                  paste("ENM/Pollinators/Ensemble", 
+                        species_basename, 
+                        sep = "/"), 
+                  overwrite = TRUE)
+    } else {
+      next
+    }
+    
   }
 }
 
-# Binary files
+# Cropping pollinator models in the current scenario: binary --------------
 
 paths <- list()
 
@@ -273,20 +351,27 @@ for (i in 1:length(rounds)) {
 
 for (i in 1:length(rounds)) {
   for (j in 1:length(path_models[[i]])) {
-    model <- rast(path_models[[i]][[j]])
-    crop_model <- crop(model, SA_bbox)
-    species_basename <- basename(path_models[[i]][[j]])
-    writeRaster(crop_model, 
-                paste("ENM/Pollinators/Ensemble/Sorensen", 
-                      species_basename, 
-                      sep = "/"), 
-                overwrite = TRUE)
+    if (basename(path_models[[i]][[j]]) %in% files2) {
+      model <- rast(path_models[[i]][[j]])
+      crop_model <- crop(model, SA_bbox)
+      species_basename <- basename(path_models[[i]][[j]])
+      writeRaster(crop_model, 
+                  paste("ENM/Pollinators/Ensemble/Sorensen", 
+                        species_basename, 
+                        sep = "/"), 
+                  overwrite = TRUE)
+    } else {
+      next
+    }
+    
   }
 }
 
 # Cropping current niche models: plants -----------------------------------
 
 rounds <- list.files("./ENM_plants")
+
+files2 <- list.files("./ENM/plants/Projection", pattern = ".tif")
 
 paths <- list()
 
@@ -314,16 +399,21 @@ SA_bbox <- c(-82, -34, -56, 12.5)
 
 for (i in 1:length(rounds)) {
   for (j in 1:length(path_models[[i]])) {
-    model <- rast(path_models[[i]][[j]])
-    crop_model <- crop(model, SA_bbox)
-    species_basename <- basename(path_models[[i]][[j]])
-    writeRaster(crop_model, 
-                paste("ENM/Plants/Ensemble", 
-                      species_basename, 
-                      sep = "/"), 
-                overwrite = TRUE)
+    if (basename(path_models[[i]][[j]]) %in% files2) {
+      model <- rast(path_models[[i]][[j]])
+      crop_model <- crop(model, SA_bbox)
+      species_basename <- basename(path_models[[i]][[j]])
+      writeRaster(crop_model, 
+                  paste("ENM/Plants/Ensemble", 
+                        species_basename, 
+                        sep = "/"), 
+                  overwrite = TRUE)
+    } else {
+      next
+    }
+    print(j)
   }
-  print(i)
+  print(i); print(j)
 }
 
 # Binary files
@@ -353,20 +443,26 @@ for (i in 1:length(rounds)) {
 
 for (i in 1:length(rounds)) {
   for (j in 1:length(path_models[[i]])) {
-    model <- rast(path_models[[i]][[j]])
-    crop_model <- crop(model, SA_bbox)
-    species_basename <- basename(path_models[[i]][[j]])
-    writeRaster(crop_model, 
-                paste("ENM/Plants/Ensemble/Sorensen", 
-                      species_basename, 
-                      sep = "/"), 
-                overwrite = TRUE)
+    if (basename(path_models[[i]][[j]]) %in% files2) {
+      model <- rast(path_models[[i]][[j]])
+      crop_model <- crop(model, SA_bbox)
+      species_basename <- basename(path_models[[i]][[j]])
+      writeRaster(crop_model, 
+                  paste("ENM/Plants/Ensemble/Sorensen", 
+                        species_basename, 
+                        sep = "/"), 
+                  overwrite = TRUE)
+    } else {
+      next
+    }
+    
   }
   print(i)
 }
 
-rm(crop_model, model, path_models, paths, paths_current, rounds_list, 
-   files, i, j, rounds, SA_bbox, species_basename)
+rm(crop_model, model, path_models, paths, paths_current,  
+   files, i, j, rounds, SA_bbox, species_basename, sp_name, files2, thresholds2,
+   evaluation, evaluation2, filtered_data)
 
 
 
