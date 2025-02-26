@@ -223,8 +223,7 @@ for (i in 1:length(plant_files)) {
   print(i)
 }
 
-rm(filter_interactions, interaction_pairs, interaction_stack, path_plants_future,
-   path_plants_present, path_pollinators_future, path_pollinators_present, plant_raster,
+rm(filter_interactions, interaction_pairs, interaction_stack, plant_raster,
    pollination_raster, raster_bin,plant_files, plant_name_tif, pollinator_name_tif,
    i, interactions, j, k, name_tif, plant_names, pollinator_files, pollinator_names,
    )
