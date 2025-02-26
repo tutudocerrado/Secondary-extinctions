@@ -271,65 +271,7 @@ for (i in 1:length(rounds)) {
   print(i); print(j)
 }
 
-
-# Correction --------------------------------------------------------------
-# current
-
-
-model <- rast("./ENM_plants/Result_plants20_8/Ensemble/SUP/Psidium_guayava.tif")
-      crop_model <- crop(model, SA_bbox)
-      species_basename <- "Psidium_guayava.tif"
-      writeRaster(crop_model, 
-                  paste("ENM/Plants/Ensemble", 
-                        species_basename, 
-                        sep = "/"), 
-                  overwrite = TRUE)
-
-model <- rast("./ENM_plants/Result_plants20_8/Ensemble/SUP/Sorensen/Psidium_guayava.tif")
-      crop_model <- crop(model, SA_bbox)
-      species_basename <- "Psidium_guayava.tif"
-      writeRaster(crop_model, 
-                  paste("ENM/Plants/Ensemble/Sorensen", 
-                        species_basename, 
-                        sep = "/"), 
-                  overwrite = TRUE)
-
-# future
-
-GCMs[[1]] <- rast("./ENM_plants/Result_plants20_8/Projection/CMCC-ESM2_ssp585_2081-2100/Ensemble/SUP/Psidium_guayava.tif")
-GCMs[[2]] <- rast("./ENM_plants/Result_plants20_8/Projection/EC-Earth3-Veg_ssp585_2081-2100/Ensemble/SUP/Psidium_guayava.tif")
-GCMs[[3]] <- rast("./ENM_plants/Result_plants20_8/Projection/FIO-ESM-2-0_ssp585_2081-2100/Ensemble/SUP/Psidium_guayava.tif")
-GCMs[[4]] <- rast("./ENM_plants/Result_plants20_8/Projection/MIROC6_ssp585_2081-2100/Ensemble/SUP/Psidium_guayava.tif")
-GCMs[[5]] <- rast("./ENM_plants/Result_plants20_8/Projection/MRI-ESM2-0_ssp585_2081-2100/Ensemble/SUP/Psidium_guayava.tif")
-      
-      sp_name <- "Psidium_guayava"
-      filtered_data <- subset(evaluation2[[9]], Sp == sp_name & Algorithm == "SUP")
-      
-      stackGCM <- c(GCMs[[1]], GCMs[[2]], GCMs[[3]], GCMs[[4]], GCMs[[5]])
-      meanGCM <- terra::app(stackGCM, fun = mean)
-      cropGCM <- crop(meanGCM, SA_bbox)
-      species_basename <- "Psidium_guayava.tif"
-      writeRaster(cropGCM, 
-                  paste("ENM/Plants/Projection", 
-                        species_basename, 
-                        sep = "/"), 
-                  overwrite = TRUE)
-      species_name <- gsub("\\.tif$", "", species_basename)
-      threshold_file <- as.data.frame(thresholds2[9])
-      threshold <- threshold_file |> 
-        filter(Sp == "Psidium_guayava" & THR == "SORENSEN") |> 
-        pull(THR_VALUE)
-      threshold <- as.numeric(threshold)
-      cropGCMbin <- cropGCM >= threshold
-      writeRaster(cropGCMbin, 
-                  paste("ENM/Plants/Projection/Sorensen", 
-                        species_basename, 
-                        sep = "/"), 
-                  overwrite = TRUE)
-      GCMs <- list()
-      print(j)
-
-# Removing unused objects 
+# Removing unused objects -------------------------------------------------
 
 rm(files, folders, i, j, k, neotropical_bbox, rounds, SA_bbox, species_basename, 
    species_name, threshold, threshold_file, thresholds, stackGCM, save_list, rounds_list,
@@ -517,6 +459,8 @@ for (i in 1:length(rounds)) {
   }
   print(i)
 }
+
+# Removing unused objects -------------------------------------------------
 
 rm(crop_model, model, path_models, paths, paths_current,  
    files, i, j, rounds, SA_bbox, species_basename, sp_name, files2, thresholds2,
