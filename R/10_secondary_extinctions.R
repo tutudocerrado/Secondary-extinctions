@@ -291,7 +291,7 @@ secondary_extinction_groups <- grid.arrange(secondary_extinc_plant_map,
                                             secondary_extinc_pollinator_map, ncol = 2)
 
 ggsave(plot = secondary_extinction_groups, 
-       filename = "./Results/secondary_extinction_groups.tif",
+       filename = "./Results/secondary_extinction_groups.png",
        dpi = 300,
        width = 7.2,
        height = 4.5)
