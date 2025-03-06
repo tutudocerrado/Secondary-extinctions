@@ -416,7 +416,3 @@ writeRaster(int_stack,
 
 rm(int, int_stack, files_int, i)
 
-
-
-
-
