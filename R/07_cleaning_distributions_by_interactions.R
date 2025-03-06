@@ -255,6 +255,8 @@ for (i in 1:length(pollinator_names)) {
 
 pollination_database <- pollination_database2
 pollination_database <- na.omit(pollination_database)
+pollination_database2 <- pollination_database |> 
+  distinct(pollinator, plant, .keep_all = TRUE)
 
 write_xlsx(pollination_database, "./data/clean/pollination_database2.xlsx")
 
