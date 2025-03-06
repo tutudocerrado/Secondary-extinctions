@@ -276,7 +276,7 @@ int_c_map <- ggplot(data = int_c,
 interaction_components <- grid.arrange(int_a_map, int_b_map, int_c_map, ncol = 3)
 
 ggsave(plot = interaction_components, 
-       filename = "./Results/components_interaction_rewiring.png",
+       filename = "./Results/components_interaction_rewiring.tif",
        dpi = 300,
        width = 9.5,
        height = 4.5)
@@ -387,7 +387,36 @@ dissimilarity <- grid.arrange(jaccard_map, sorensen_map, simpson_map, ncol = 3)
 
 
 ggsave(plot = dissimilarity, 
-       filename = "./Results/dissimilarities.tif",
+       filename = "./Results/dissimilarities.png",
        dpi = 300,
        width = 10.1,
        height = 4.5)
+
+rm(beta_w, dissimilarity, int, int_a, int_b, int_c, int_a_map, int_b_map,
+   int_c_map, interaction_components, jaccard, jaccard_map, simpson, simpson_map,
+   sorensen, sorensen_map, calc_beta_w, calc_jaccard, calc_sorensen, calc_simpson)
+
+# Mapping the number of new interactions in the future --------------------
+
+files_int <- list.files("./Interaction_rewiring", pattern = ".tif")
+
+for (i in 1:length(files_int)) {
+  int <- rast(paste("./Interaction_rewiring", files_int[i], sep = "/"))
+  if (i == 1) {
+    int_stack <- int
+  } else {
+    int_stack <- app(c(int_stack, int), fun = sum)
+  }
+  print(i)
+}
+
+writeRaster(int_stack, 
+            filename = "./Results/rasters/interactions_exclusive_in_future.tif", 
+            overwrite = TRUE)
+
+rm(int, int_stack, files_int, i)
+
+
+
+
+
