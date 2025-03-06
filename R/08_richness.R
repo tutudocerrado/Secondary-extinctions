@@ -63,8 +63,11 @@ names(Plant_richness) <- "Plant_richness_present"
 Plant_richness_present <- Plant_richness
 Richness[[1]] <- Plant_richness_present
 
+dir.create("./Results")
+dir.create("./Results/rasters")
+
 writeRaster(Plant_richness_present, 
-            filename = "./Results/rasters/Plant_richness_present.tif", 
+            filename = "./Results/rasters/Plant_richness_current.tif", 
             overwrite = TRUE)
 
 rm(Plant_richness, ENM_plant, stack_plants, i, Plant_richness_present)
@@ -114,7 +117,7 @@ Pollinator_richness_present <- Pollinator_richness
 Richness[[3]] <- Pollinator_richness_present
 
 writeRaster(Pollinator_richness_present, 
-            filename = "./Results/rasters/Pollinator_richness_present.tif", 
+            filename = "./Results/rasters/Pollinator_richness_current.tif", 
             overwrite = TRUE)
 
 
@@ -248,10 +251,9 @@ riqueza <- grid.arrange(plant_present,
                         pollinator_present,
                         pollinator_future, ncol = 2)
 
-#dir.create("./Results")
 
 ggsave(plot = riqueza, 
-       filename = "./Results/richness_SM.tif",
+       filename = "./Results/richness_by_groups.png",
        dpi = 300,
        width = 7,
        height = 9)
@@ -322,7 +324,7 @@ riqueza <- grid.arrange(current_richness,
 
 
 ggsave(plot = riqueza, 
-       filename = "./Results/total_richness_SM.png",
+       filename = "./Results/total_richness.tif",
        dpi = 300,
        width = 7,
        height = 4.5)
@@ -330,6 +332,6 @@ ggsave(plot = riqueza,
 
 
 rm(riqueza, pollinator_future, pollinator_present, plant_future, plant_present, 
-   plant_mask, Richness, richness_df, future_richness, current_richness,
+   Richness, richness_df, future_richness, current_richness,
    present_stack,future_stack)
-
+rm(path_plants_future, path_plants_present, path_pollinators_future, path_pollinators_present)
