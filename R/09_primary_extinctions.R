@@ -176,7 +176,7 @@ primary_extinction_groups <- grid.arrange(primary_extinc_plants_map,
 
 
 ggsave(plot = primary_extinction_groups, 
-       filename = "./Results/primary_extinction_groups.tif",
+       filename = "./Results/primary_extinction_groups.png",
        dpi = 300,
        width = 7.2,
        height = 4.5)
