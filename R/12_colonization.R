@@ -150,3 +150,6 @@ ggsave(plot = colonization_by_groups,
        dpi = 300,
        width = 7.2,
        height = 4.5)
+
+rm(colonization_by_groups, plant_colonization, plant_colonization_map, pollinator_colonization,
+   pollinator_colonization_map)
