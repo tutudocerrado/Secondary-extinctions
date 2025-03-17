@@ -136,7 +136,7 @@ primary_extinc_pollinat_map <- ggplot(data = primary_extinc_pollinat,
   annotate("text", 
            x = -82, 
            y = 12, 
-           label = "a", 
+           label = "b", 
            color = "black", size = 7) +
   theme(legend.position = c(0.85, 0.25), 
         axis.text = element_blank(), 
@@ -161,7 +161,7 @@ primary_extinc_plants_map <- ggplot(data = primary_extinc_plants,
   annotate("text", 
            x = -82, 
            y = 12, 
-           label = "b", 
+           label = "a", 
            color = "black", size = 7) +
   theme(legend.position = c(0.85, 0.25), 
         axis.text = element_blank(), 
@@ -176,7 +176,7 @@ primary_extinction_groups <- grid.arrange(primary_extinc_plants_map,
 
 
 ggsave(plot = primary_extinction_groups, 
-       filename = "./Results/primary_extinction_groups.png",
+       filename = "./Results/primary_extinction_groups.tif",
        dpi = 300,
        width = 7.2,
        height = 4.5)
