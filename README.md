@@ -5,5 +5,3 @@
 ¹Posgraduate Program in Ecology and Evolution, Federal University of Goiás, Brazil
 
 ²Red de Biología Evolutiva, Instituto de Ecología AC, Xalapa, Veracruz, Mexico
-
-
