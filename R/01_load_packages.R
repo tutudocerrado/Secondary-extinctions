@@ -25,7 +25,16 @@ packages <- c("terra",
               "ggplot2",
               "ggmap",
               "cowplot",
-              "gridExtra")
+              "gridExtra",
+              "viridis",
+              "spdep",
+              "spaMM",
+              "mgcv",
+              "gratia",
+              "hexbin",
+              "extrafont",
+              "scales",
+              "DHARMa")
 
 ipak(packages); rm(packages,ipak)
 
