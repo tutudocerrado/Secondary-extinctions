@@ -34,7 +34,12 @@ packages <- c("terra",
               "hexbin",
               "extrafont",
               "scales",
-              "DHARMa")
+              "DHARMa",
+              "tools",
+              "bipartite",
+              "nlme",
+              "latex2exp",
+              "gratia")
 
 ipak(packages); rm(packages,ipak)
 
