@@ -110,9 +110,13 @@ rm(data,gbif,i)
 
 # Exporting a list of pollinator names to obtain records from the SpeciesLink
 
+# Creating empty matrix to save pollinator names
+
 pollinator_splink <- matrix(data = NA, nrow = length(pollinator), ncol = 1)
 pollinator_splink <- as.data.frame(pollinator_splink)
 colnames(pollinator_splink) <- "pollinators_species_name"
+
+# Saving pollinator names in the dataframe
 
 for (i in 1:nrow(pollinator_splink)) {
   pollinator_splink[i,1] <- pollinator[i]
@@ -123,6 +127,8 @@ write_xlsx(pollinator_splink,
 
 # Exporting a list of plants names to obtain records from the SpeciesLink
 
+# Creating empty matrix to save pollinator names
+
 plants_splink <- matrix(data = NA, nrow = length(plants), ncol = 1)
 plants_splink <- as.data.frame(plants_splink)
 colnames(plants_splink) <- "plants_species_name"
@@ -130,6 +136,8 @@ colnames(plants_splink) <- "plants_species_name"
 for (i in 1:nrow(plants_splink)) {
   plants_splink[i,1] <- plants[i]
 }
+
+# Saving plant names in the dataframe
 
 write_xlsx(plants_splink, 
            path = "./data/raw/plants_splink_search.xlsx")
@@ -142,6 +150,8 @@ pollinator <- pollinator_splink
 # Removing unused objects hereafter
 
 rm(plants_splink, pollinator_splink, i)
+
+# Note: the SpeciesLink data were obtained directly from the database
 
 # Reading pollinator occurrence records from the Specieslink --------------
 
