@@ -1,10 +1,17 @@
 # Creating folders in the directory ---------------------------------------
 
+# The folder below was created to add an initial file obtained from the A.B.E.L.H.A. database
+
 dir.create("data")
 dir.create("data/raw")
+
+# The folder below was created to add clean data
+
 dir.create("data/clean")
 
 # Load interaction data from A.B.E.L.H.A database -------------------------
+
+# The data below were obtained through direct contact with those responsible for the database.
 
 data_abelha <- read_xlsx("./data/raw/interaction_database_abelha.xlsx", 
                          sheet = 1)[,c(5,6,10,11)]
